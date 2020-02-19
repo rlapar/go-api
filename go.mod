@@ -1,4 +1,4 @@
-module text_converter
+module go_api
 
 go 1.13
 

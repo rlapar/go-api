@@ -1,4 +1,4 @@
-package app
+package ping
 
 import (
 	"encoding/json"
@@ -6,14 +6,14 @@ import (
 )
 
 type PingResponse struct {
-	pong string
+	Pong string `json:"pong"`
 }
 
-func Get() (w http.ResponseWriter, r *http.Request) {
+func Get(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
 
-	json.NewEncoder(w).Encode(PingResponse{pong: "ok"})
+	json.NewEncoder(w).Encode(PingResponse{Pong: "ok"})
 
 	return
 }
