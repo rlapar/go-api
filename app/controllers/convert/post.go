@@ -5,16 +5,16 @@ import (
 	"net/http"
 
 	"github.com/thedevsaddam/govalidator"
+
+	"go_api/app/converter"
 )
 
 type Request struct {
-	Foo     string `json:"foo"`
-	FooInt  int64  `json:"foo_int"`
-	FooBool bool   `json:"foo_bool"`
+	HtmlString string `json:"html_string"`
 }
 
 type Response struct {
-	Pong string `json:"pong"`
+	Content []byte `json:"content"`
 }
 
 func Post(w http.ResponseWriter, r *http.Request) {
@@ -28,9 +28,7 @@ func Post(w http.ResponseWriter, r *http.Request) {
 		Data:            requestBody,
 		RequiredDefault: true,
 		Rules: govalidator.MapData{
-			"foo":      []string{"required"},
-			"foo_int":  []string{"numeric_between:1,"},
-			"foo_bool": []string{"bool"},
+			"html_string": []string{"required"},
 		},
 	})
 	e := validator.ValidateJSON()
@@ -43,8 +41,19 @@ func Post(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	content, err := converter.HtmlToPDF(requestBody.HtmlString)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		w.Header().Set("Content-Type", "application/json")
+		return
+	}
+
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
 
-	json.NewEncoder(w).Encode(Response{Pong: "ok"})
+	json.NewEncoder(w).Encode(Response{
+		Content: content,
+		// Content: base64.StdEncoding.EncodeToString(content),
+		// TODO convert to base64 String
+	})
 }
